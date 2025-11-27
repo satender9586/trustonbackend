@@ -35,4 +35,25 @@ const validateSignUpInfo = (data) => {
   return errors;
 };
 
-module.exports = { validateSignUpInfo };
+const validateLoginInfo=(data)=>{
+  const{emailId, password}=data
+   const errors = [];
+    // Email
+  if (!emailId || emailId.trim().length === 0) {
+    errors.push({ field: "emailId", message: "Email is required!" });
+  } else if (!validator.isEmail(emailId)) {
+    errors.push({ field: "emailId", message: "Invalid email format" });
+  }
+
+  
+  // Password
+  if (!password || password.trim().length === 0) {
+    errors.push({ field: "password", message: "Password is required!" });
+  } else if (password.length < 6) {
+    errors.push({ field: "password", message: "Password must be at least 6 characters" });
+  }
+  return errors
+
+}
+
+module.exports = { validateSignUpInfo ,validateLoginInfo};

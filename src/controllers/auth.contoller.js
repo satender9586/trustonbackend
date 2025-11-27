@@ -1,8 +1,13 @@
-const { validateSignUpInfo } = require("../utils/validate.js");
+const { validateSignUpInfo, validateLoginInfo } = require("../utils/validate.js");
 const ErrorHandler = require("../utils/errorHandler.js")
 const SuccessHandler = require("../utils/successHandler.js")
 const { queryAsync } = require("../config/dbConnect.js")
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+const { tokenGenerate } = require("../utils/token.js")
+const cookieOptions = require("../utils/cookie.js")
+
+
 
 const signup = async (req, res) => {
 
@@ -18,7 +23,7 @@ const signup = async (req, res) => {
             return res.status(error.status).json({
                 success: false,
                 message: error.message,
-                data :error.data,
+                data: error.data,
                 error: error.errors
             });
         }
@@ -54,15 +59,87 @@ const signup = async (req, res) => {
         }
         )
 
+
+
+
+
+
     } catch (error) {
-            const errors = new ErrorHandler(500, error.message)
-            return res.status(error.status).json({
-                success: false,
-                message: errors.message,
-                data :errors.data,
-                error: errors.errors
-            });
+        const errors = new ErrorHandler(500, error.message)
+        return res.status(error.status).json({
+            success: false,
+            message: errors.message,
+            data: errors.data,
+            error: errors.errors
+        });
     }
 };
 
-module.exports = { signup };
+
+const signin = async (req, res) => {
+    const { emailId, password } = req.body;
+
+    try {
+        // validate input field
+        const inputFieldErrors = validateLoginInfo(req.body);
+        if (inputFieldErrors.length > 0) {
+            const error = new ErrorHandler(400, "login fields are missing!", inputFieldErrors)
+            return res.status(error.status).json({
+                success: false,
+                message: error.message,
+                data: error.data,
+                error: error.errors
+            });
+        }
+
+        // checked is user already exists of not;
+        const isUserExist = await queryAsync('SELECT userId, emailId, password FROM users WHERE emailId = ?', emailId)
+
+        if (isUserExist.length == 0) {
+            const error = new ErrorHandler(400, "emailId and user is not exists!", isUserExist)
+            return res.status(error.status).json({
+                success: false,
+                message: error.message,
+                error: error.errors
+            })
+        }
+        const userInfo = isUserExist[0]
+
+        // password verification
+        const isPasswordVerify = await bcrypt.compare(password, userInfo.password)
+        if (!isPasswordVerify) {
+            const error = new ErrorHandler(400, "invalid password try again!")
+            return res.status(error.status).json({
+                success: false,
+                message: error.message,
+                error: error.errors
+            })
+        }
+        const { accessToken, refreshToken } = await tokenGenerate({ emailId: userInfo.emailId, userId: userInfo.userId })
+        const success = new SuccessHandler(200, "Succesfully Login", { emailId: userInfo.emailId, userId: userInfo.userId, accessToken, refreshToken })
+        return resres
+            .status(success.status)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
+            .json({
+                success: true,
+                message: success.message,
+                data: success.data,
+                error: success.errors,
+            });
+
+
+    } catch (error) {
+        const errors = new ErrorHandler(500, error.message)
+        return res.status(error.status).json({
+            success: false,
+            message: errors.message,
+            data: errors.data,
+            error: errors.errors
+        });
+    }
+}
+
+
+
+module.exports = { signup, signin };

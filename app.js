@@ -3,6 +3,7 @@ const app = express()
 const dotenv = require("dotenv")
 const {funDb} = require("./src/config/dbConnect.js")
 const authRoutes = require("./src/routes/auth.routes.js")
+const cookieParser = require("cookie-parser")
 
 // db connected
 funDb()
@@ -16,6 +17,7 @@ dotenv.config()
 
 // middleware
 app.use(express.json())
+app.use(cookieParser())
 app.use("/api/v1/auth",authRoutes)
 
 
