@@ -5,7 +5,7 @@ const { queryAsync } = require("../config/dbConnect.js")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const { tokenGenerate } = require("../utils/token.js")
-const cookieOptions = require("../utils/cookie.js")
+const {cookieAccessOptions,cookieRefreshOptions} = require("../utils/cookie.js")
 
 
 
@@ -75,7 +75,6 @@ const signup = async (req, res) => {
     }
 };
 
-
 const signin = async (req, res) => {
     const { emailId, password } = req.body;
 
@@ -117,10 +116,9 @@ const signin = async (req, res) => {
         }
         const { accessToken, refreshToken } = await tokenGenerate({ emailId: userInfo.emailId, userId: userInfo.userId })
         const success = new SuccessHandler(200, "Succesfully Login", { emailId: userInfo.emailId, userId: userInfo.userId, accessToken, refreshToken })
-        return resres
-            .status(success.status)
-            .cookie("accessToken", accessToken, cookieOptions)
-            .cookie("refreshToken", refreshToken, cookieOptions)
+        return res.status(success.status)
+            .cookie("accessToken", accessToken, cookieAccessOptions)
+            .cookie("refreshToken", refreshToken, cookieRefreshOptions)
             .json({
                 success: true,
                 message: success.message,
@@ -140,6 +138,31 @@ const signin = async (req, res) => {
     }
 }
 
+const signout = async (req, res) => {
+    try {
+        const success = new SuccessHandler(200, "Succesfully Logout")
+        return res.status(success.status)
+            .cookie("accessToken", null, cookieOptions)
+            .cookie("refreshToken", null, cookieOptions)
+            .json({
+                success: true,
+                message: success.message,
+                data: success.data,
+                error: success.errors,
+            });
+    } catch (error) {
+        const errors = new ErrorHandler(500, error.message)
+        return res.status(error.status).json({
+            success: false,
+            message: errors.message,
+            data: errors.data,
+            error: errors.errors
+        });
+    }
+}
 
 
-module.exports = { signup, signin };
+
+
+
+module.exports = { signup, signin,signout };

@@ -13,7 +13,7 @@ const accessTokenGenerate = async ({userId, emailId})=>{
 
 const refreshTokenGenerate = async ({userId, emailId})=>{
     try {
-        const accessToken = jwt.sign({userId, emailId}, process.env.ACCESS_TOKEN_SECRET_KEY,{expiresIn:process.env.ACCESS_TOKEN_EXPIRE_TIME})
+        const accessToken = jwt.sign({userId, emailId}, process.env.ACCESS_TOKEN_SECRET_KEY,{expiresIn:process.env.REFRESH_TOKEN_EXPIRE_TIME})
         return accessToken;
     } catch (error) {
         throw new error("Access Token error : ", error.message)
