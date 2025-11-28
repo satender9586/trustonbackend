@@ -5,7 +5,8 @@ const { queryAsync } = require("../config/dbConnect.js")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const { tokenGenerate } = require("../utils/token.js")
-const {cookieAccessOptions,cookieRefreshOptions} = require("../utils/cookie.js")
+const { cookieAccessOptions, cookieRefreshOptions } = require("../utils/cookie.js")
+
 
 
 
@@ -140,29 +141,33 @@ const signin = async (req, res) => {
 
 const signout = async (req, res) => {
     try {
-        const success = new SuccessHandler(200, "Succesfully Logout")
-        return res.status(success.status)
-            .cookie("accessToken", null, cookieOptions)
-            .cookie("refreshToken", null, cookieOptions)
+        const success = new SuccessHandler(200, "Successfully Logout");
+        return res
+            .status(success.status)
+            .clearCookie("accessToken")
+            .clearCookie("refreshToken")
             .json({
                 success: true,
                 message: success.message,
                 data: success.data,
-                error: success.errors,
+                error: success.errors
             });
-    } catch (error) {
-        const errors = new ErrorHandler(500, error.message)
-        return res.status(error.status).json({
-            success: false,
-            message: errors.message,
-            data: errors.data,
-            error: errors.errors
-        });
+
+    } catch (err) {
+        const errors = new ErrorHandler(500, err.message);
+        return res
+            .status(errors.status)
+            .json({
+                success: false,
+                message: errors.message,
+                data: errors.data,
+                error: errors.errors
+            });
     }
-}
+};
 
 
 
 
 
-module.exports = { signup, signin,signout };
+module.exports = { signup, signin, signout };

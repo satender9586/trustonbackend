@@ -1,22 +1,29 @@
 const ErrorHandler = require("../utils/errorHandler");
+const jwt = require("jsonwebtoken")
+require("dotenv").config()
 
 const authMiddleware = async (req, res, next) => {
     try {
-        const token = req.header("Authorization").split(" ")[1]
+        const token = (req.headers.authorization?.startsWith("Bearer ") ? req.headers.authorization.split(" ")[1] : null) ||
+            req.cookies?.accessToken ||
+            req.body?.accessToken;
 
-        if (!token) {
-            return res.status(401).json({
+            if (!token) {
+            const error = new ErrorHandler(401, "Token missing")
+            return res.status(error.status).json({
                 success: false,
-                message: "Token missing",
+                message: error.message,
+                data: error.data,
+                error: error.errors
             });
         }
 
-        console.log("Token:", token);
-
+        const decode = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY)
+        req.User = decode
         next();
+
     } catch (error) {
         const errors = new ErrorHandler(500, error.message);
-
         return res.status(errors.status).json({
             success: false,
             message: errors.message,

@@ -8,3 +8,11 @@ This system includes:
 - 👤 Customer Website  
 - 📞 Direct Call Bookings by Admin  
 - 🔐 Authentication (JWT)  
+
+
+<!-- api work flow -->
+
+<!-- Auth api -->
+
+SIGNGN -> POST : http://localhost:8080/api/v1/auth/signup
+LOGIN -> POST : http://localhost:8080/api/v1/auth/singin

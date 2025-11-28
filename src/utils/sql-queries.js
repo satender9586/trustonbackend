@@ -38,7 +38,7 @@ const createAddressTable = `CREATE TABLE IF NOT EXISTS addresses (
     area VARCHAR(100) NOT NULL,
     city VARCHAR(100) NOT NULL,
     state VARCHAR(100) NOT NULL,
-    pincode VARCHAR(10) NOT NULL CHECK (pincode REGEXP '^[0-9]{6}$'),
+    pincode VARCHAR(10) ,
     fullAddress TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -7,14 +7,11 @@ const profileRoutes = require("./src/routes/profile.routes.js")
 const cookieParser = require("cookie-parser")
 const authMiddleware = require("./src/middleware/authMiddleware.js")
 
-
 // db connected
 funDb()
 
 // config env file
 dotenv.config()
-
-
 
 
 
