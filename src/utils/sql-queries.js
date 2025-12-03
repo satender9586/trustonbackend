@@ -38,7 +38,7 @@ const createAddressTable = `CREATE TABLE IF NOT EXISTS addresses (
     area VARCHAR(100) NOT NULL,
     city VARCHAR(100) NOT NULL,
     state VARCHAR(100) NOT NULL,
-    pincode VARCHAR(10) ,
+    pincode VARCHAR(10),
     fullAddress TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -46,5 +46,58 @@ const createAddressTable = `CREATE TABLE IF NOT EXISTS addresses (
 );
 `;
 
+// create services tables if not exits
 
-module.exports = { createDatabase, useDatabase ,createUsersTable,createAddressTable};
+const createServicesTable = `CREATE TABLE IF NOT EXISTS services (
+    serviceId INT PRIMARY KEY AUTO_INCREMENT,
+    serviceName VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    bannerImg VARCHAR(255),
+    iconImg VARCHAR(255),
+    trending BOOLEAN DEFAULT FALSE,
+    status BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+`
+// create createServicesCetogoryTable tables if not exits
+const createServicesCetogoryTable = `CREATE TABLE IF NOT EXISTS service_categories (
+    categoryId INT PRIMARY KEY AUTO_INCREMENT,
+    serviceId INT NOT NULL,
+    categoryName VARCHAR(100) NOT NULL,  
+    description TEXT,
+    image VARCHAR(255),
+    status BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (serviceId) REFERENCES services(serviceId) ON DELETE CASCADE
+);
+`
+// create servicesItemTable tables if not exits
+const servicesItemTable = `CREATE TABLE IF NOT EXISTS service_items (
+    itemId INT PRIMARY KEY AUTO_INCREMENT,
+    categoryId INT NOT NULL,
+    itemName VARCHAR(150) NOT NULL,    
+    price DECIMAL(10,2) NOT NULL,
+    shortDesc VARCHAR(255),
+    image VARCHAR(255),
+    status BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (categoryId) REFERENCES service_categories(categoryId) ON DELETE CASCADE
+);
+`
+
+// create servicesItemFeature tables if not exits
+const servicesItemFeatureTable = `CREATE TABLE IF NOT EXISTS service_item_features (
+    featureId INT PRIMARY KEY AUTO_INCREMENT,
+    itemId INT NOT NULL,
+    featureText VARCHAR(255) NOT NULL,
+    FOREIGN KEY (itemId) REFERENCES service_items(itemId) ON DELETE CASCADE
+);
+`
+
+module.exports = { createDatabase, useDatabase ,createUsersTable,createAddressTable,
+    createServicesTable,createServicesCetogoryTable,servicesItemTable,servicesItemFeatureTable}
+

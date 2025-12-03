@@ -56,4 +56,136 @@ const validateLoginInfo=(data)=>{
 
 }
 
-module.exports = { validateSignUpInfo ,validateLoginInfo};
+
+const validateServiceInfo = (data) => {
+  const { serviceName,slug, description,  bannerImg, iconImg, trending, status } = data;
+
+  const errors = [];
+
+
+  if (!serviceName || serviceName.trim().length === 0) {
+    errors.push({ field: "serviceName", message: "Service name is required!" });
+  } else if (serviceName.length > 100) {
+    errors.push({ field: "serviceName", message: "Service name must be under 100 characters" });
+  }
+
+
+  if (!slug || slug.trim().length === 0) {
+    errors.push({ field: "slug", message: "Slug is required!" });
+  } else if (!/^[a-z0-9-]+$/.test(slug)) {
+    errors.push({ field: "slug", message: "Slug must contain only lowercase letters, numbers, hyphens" });
+  } else if (slug.length > 100) {
+    errors.push({ field: "slug", message: "Slug must be under 100 characters" });
+  }
+
+
+  if (description && description.trim().length < 10) {
+    errors.push({ field: "description", message: "Description must be at least 10 characters" });
+  }
+
+
+  if (bannerImg && !validator.isURL(bannerImg)) {
+    errors.push({ field: "bannerImg", message: "Invalid banner image URL" });
+  }
+
+
+  if (iconImg && !validator.isURL(iconImg)) {
+    errors.push({ field: "iconImg", message: "Invalid icon image URL" });
+  }
+
+
+  if (trending !== undefined && typeof trending !== "boolean") {
+    errors.push({ field: "trending", message: "Trending must be true or false" });
+  }
+
+  if (status !== undefined && typeof status !== "boolean") {
+    errors.push({ field: "status", message: "Status must be true or false" });
+  }
+
+  return errors;
+};
+
+const validateCategoryInfo = (data) => {
+  const { serviceId, categoryName, description } = data;
+  const errors = [];
+
+  // serviceId
+  if (!serviceId) {
+    errors.push({ field: "serviceId", message: "serviceId is required" });
+  } else if (typeof serviceId !== "number") {
+    errors.push({ field: "serviceId", message: "serviceId must be a number" });
+  }
+
+  // categoryName
+  if (!categoryName || categoryName.trim().length === 0) {
+    errors.push({ field: "categoryName", message: "Category name is required" });
+  } else if (categoryName.length > 100) {
+    errors.push({ field: "categoryName", message: "Category name must be under 100 characters" });
+  }
+
+  // description
+  if (description && description.length < 10) {
+    errors.push({ field: "description", message: "Description must be at least 10 characters" });
+  }
+
+  return errors;
+};
+
+const validateServiceItemInfo = (data) => {
+  const { categoryId, itemName, itemPrice, itemDescription, imageUrl } = data;
+  const errors = [];
+
+  // categoryId
+  if (!categoryId) {
+    errors.push({ field: "categoryId", message: "categoryId is required" });
+  } else if (typeof categoryId !== "number") {
+    errors.push({ field: "categoryId", message: "categoryId must be a number" });
+  }
+
+  // itemName
+  if (!itemName || itemName.trim().length === 0) {
+    errors.push({ field: "itemName", message: "Item name is required" });
+  } else if (itemName.length > 100) {
+    errors.push({ field: "itemName", message: "Item name must be under 100 characters" });
+  }
+
+  // itemPrice
+  if (itemPrice === undefined || itemPrice === null) {
+    errors.push({ field: "itemPrice", message: "Item price is required" });
+  } else if (typeof itemPrice !== "number") {
+    errors.push({ field: "itemPrice", message: "Item price must be a number" });
+  }
+
+  // itemDescription
+  if (itemDescription && itemDescription.length < 10) {
+    errors.push({ field: "itemDescription", message: "Item description must be at least 10 characters" });
+  }
+
+  // imageUrl
+  if (imageUrl && !/^https?:\/\/.+\..+/.test(imageUrl)) {
+    errors.push({ field: "imageUrl", message: "Invalid image URL" });
+  }
+
+  return errors;
+};
+
+const validateServiceItemFeatureInfo = (data) => {
+  const { itemId, featureText } = data;
+  const errors = [];
+
+  if (!itemId || typeof itemId !== "number") {
+    errors.push({ field: "itemId", message: "itemId is required and must be a number" });
+  }
+
+  if (!featureText || featureText.trim().length === 0) {
+    errors.push({ field: "featureText", message: "featureText is required" });
+  } else if (featureText.length > 255) {
+    errors.push({ field: "featureText", message: "featureText must be under 255 characters" });
+  }
+
+  return errors;
+};
+
+
+
+module.exports = { validateSignUpInfo ,validateLoginInfo,validateServiceInfo,validateCategoryInfo,validateServiceItemInfo,validateServiceItemFeatureInfo};

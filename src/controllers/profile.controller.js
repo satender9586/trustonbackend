@@ -14,7 +14,6 @@ const viewProfile = async (req, res) => {
             });
         }
 
-        // Correct JOIN
         const rows = await queryAsync(
             `SELECT 
                 users.firstName,

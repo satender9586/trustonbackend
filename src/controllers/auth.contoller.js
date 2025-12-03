@@ -46,8 +46,7 @@ const signup = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, 10)
 
         // save data;
-        const saveUserInfo = await queryAsync(
-            `INSERT INTO users(firstName, lastName, phoneNumber, emailId, password) VALUES (?, ?, ?, ?, ?)`,
+        const saveUserInfo = await queryAsync( `INSERT INTO users(firstName, lastName, phoneNumber, emailId, password) VALUES (?, ?, ?, ?, ?)`,
             [firstName, lastNameValue, phoneNumber, emailId, hashPassword]
         );
 
@@ -166,6 +165,13 @@ const signout = async (req, res) => {
     }
 };
 
+const refreshToken = async (req, res)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 
 
 
