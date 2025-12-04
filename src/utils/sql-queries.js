@@ -98,6 +98,63 @@ const servicesItemFeatureTable = `CREATE TABLE IF NOT EXISTS service_item_featur
 );
 `
 
+// create booking table if not exists
+
+const createBookingTable = `
+   CREATE TABLE IF NOT EXISTS bookings (
+    bookingId INT PRIMARY KEY AUTO_INCREMENT,
+    userId INT NULL,   
+    customerName VARCHAR(100) NOT NULL,
+    customerPhone VARCHAR(15) NOT NULL,
+    serviceCategoryId INT NOT NULL,
+    serviceItemId INT NOT NULL,
+    preferredDate DATE NOT NULL,
+    preferredTimeSlot VARCHAR(50),
+    bookingType ENUM('online', 'offline') DEFAULT 'online',
+    status ENUM(
+        'pending',
+        'confirmed',
+        'assigned',
+        'in-progress',
+        'completed',
+        'cancelled'
+    ) DEFAULT 'pending',
+
+    expiresAt DATETIME NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE SET NULL,
+    FOREIGN KEY (serviceCategoryId) REFERENCES service_categories(categoryId),
+    FOREIGN KEY (serviceItemId) REFERENCES service_items(itemId)
+);
+
+`
+
+
+// create complaintAddressTable tables is not exists
+const complaintAddressTable = ` 
+   CREATE TABLE IF NOT EXISTS booking_addresses (
+    bookingAddressId INT PRIMARY KEY AUTO_INCREMENT,
+    bookingId INT NOT NULL,
+    userId INT NULL, 
+    
+    houseNo VARCHAR(50) NOT NULL,
+    street VARCHAR(100) NOT NULL,
+    landmark VARCHAR(100),
+    area VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    pincode VARCHAR(10),
+    fullAddress TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (bookingId) REFERENCES bookings(bookingId) ON DELETE CASCADE,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE SET NULL
+);
+`;
+
 module.exports = { createDatabase, useDatabase ,createUsersTable,createAddressTable,
-    createServicesTable,createServicesCetogoryTable,servicesItemTable,servicesItemFeatureTable}
+    createServicesTable,createServicesCetogoryTable,servicesItemTable,servicesItemFeatureTable,createBookingTable,complaintAddressTable}
 

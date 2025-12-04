@@ -2,7 +2,8 @@ const mysql = require("mysql2/promise");
 require("dotenv").config();
 const { 
   createDatabase, useDatabase,createUsersTable ,createAddressTable,
-  createServicesTable,createServicesCetogoryTable,servicesItemTable,servicesItemFeatureTable
+  createServicesTable,createServicesCetogoryTable,servicesItemTable,servicesItemFeatureTable,
+  createBookingTable,complaintAddressTable
 } = require("./../utils/sql-queries.js");
 
 const initialPool = mysql.createPool({
@@ -43,6 +44,8 @@ async function funDb() {
     await appPool.query(createServicesCetogoryTable);
     await appPool.query(servicesItemTable);
     await appPool.query(servicesItemFeatureTable);
+    await appPool.query(createBookingTable);
+    await appPool.query(complaintAddressTable);
     console.log(`Using database: ${process.env.DB_NAME}`);
   } catch (err) {
     console.error("DB Error:", err.message);

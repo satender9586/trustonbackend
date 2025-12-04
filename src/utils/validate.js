@@ -185,7 +185,60 @@ const validateServiceItemFeatureInfo = (data) => {
 
   return errors;
 };
+const validateBookingInfo = (data) => {
+  const {
+    customerName,
+    customerPhone,
+    serviceCategoryId,
+    serviceItemId,
+    preferredDate,
+    preferredTimeSlot,
+    bookingType,
+    address
+  } = data;
+
+  const errors = [];
+
+  if (!customerName || customerName.trim().length === 0) {
+    errors.push({ field: "customerName", message: "Customer name is required" });
+  }
+
+  if (!customerPhone || !/^[0-9]{10}$/.test(customerPhone)) {
+    errors.push({ field: "customerPhone", message: "Invalid phone number" });
+  }
+
+  if (!serviceCategoryId) {
+    errors.push({ field: "serviceCategoryId", message: "Service category is required" });
+  }
+
+  if (!serviceItemId) {
+    errors.push({ field: "serviceItemId", message: "Service item is required" });
+  }
+
+  if (!preferredDate) {
+    errors.push({ field: "preferredDate", message: "Preferred date is required" });
+  }
+
+  if (!bookingType || !["online", "offline"].includes(bookingType)) {
+    errors.push({ field: "bookingType", message: "Invalid booking type" });
+  }
+
+  if (!address) {
+    errors.push({ field: "address", message: "Address is required" });
+  } else {
+    const { houseNo, street, area, city, state } = address;
+
+    if (!houseNo) errors.push({ field: "houseNo", message: "House No is required" });
+    if (!street) errors.push({ field: "street", message: "Street is required" });
+    if (!area) errors.push({ field: "area", message: "Area is required" });
+    if (!city) errors.push({ field: "city", message: "City is required" });
+    if (!state) errors.push({ field: "state", message: "State is required" });
+  }
+
+  return errors;
+};
 
 
 
-module.exports = { validateSignUpInfo ,validateLoginInfo,validateServiceInfo,validateCategoryInfo,validateServiceItemInfo,validateServiceItemFeatureInfo};
+module.exports = { validateSignUpInfo ,validateLoginInfo,validateServiceInfo,validateCategoryInfo,
+  validateServiceItemInfo,validateServiceItemFeatureInfo,validateBookingInfo};

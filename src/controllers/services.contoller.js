@@ -1,17 +1,10 @@
 const ErrorHandler = require("../utils/errorHandler.js");
-const { validateServiceInfo ,validateCategoryInfo,validateServiceItemInfo,validateServiceItemFeatureInfo} = require("../utils/validate.js")
+const { validateServiceInfo, validateCategoryInfo, validateServiceItemInfo, validateServiceItemFeatureInfo, validateBookingInfo } = require("../utils/validate.js")
 const SuccessHandler = require("../utils/successHandler.js");
 const { queryAsync } = require("../config/dbConnect.js");
 
 
-
-
-
 const addServices = async (req, res) => {
-
-
-
-
   try {
     const {
       serviceName,
@@ -49,7 +42,7 @@ const addServices = async (req, res) => {
       });
     }
 
-    const saveService = await queryAsync( `INSERT INTO services (serviceName, slug, description, bannerImg, iconImg, trending, status)
+    const saveService = await queryAsync(`INSERT INTO services (serviceName, slug, description, bannerImg, iconImg, trending, status)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         serviceName,
@@ -62,7 +55,7 @@ const addServices = async (req, res) => {
       ]
     );
 
-    const success = new SuccessHandler(201, "Service created successfully!", {insertedId: saveService.insertId});
+    const success = new SuccessHandler(201, "Service created successfully!", { insertedId: saveService.insertId });
 
     return res.status(success.status).json({
       success: true,
@@ -186,7 +179,7 @@ const addServiceItem = async (req, res) => {
 
 const addServiceItemFeaturese = async (req, res) => {
   try {
-    const { itemId, featureText } = req.body; 
+    const { itemId, featureText } = req.body;
 
     // Validate input
     const inputErrors = validateServiceItemFeatureInfo({ itemId, featureText });
@@ -199,7 +192,7 @@ const addServiceItemFeaturese = async (req, res) => {
       });
     }
 
-    // Insert feature (do NOT include featureId)
+
     const result = await queryAsync(
       "INSERT INTO service_item_features (itemId, featureText) VALUES (?, ?)",
       [itemId, featureText]
@@ -224,10 +217,9 @@ const addServiceItemFeaturese = async (req, res) => {
 
 const getServices = async (req, res) => {
   try {
-    // 1️⃣ Get all services
+
     const services = await queryAsync("SELECT * FROM services WHERE status = TRUE");
 
-    // 2️⃣ For each service, get categories
     const serviceData = [];
     for (let service of services) {
       const categories = await queryAsync(
@@ -235,7 +227,7 @@ const getServices = async (req, res) => {
         [service.serviceId]
       );
 
-      // 3️⃣ For each category, get items
+
       const categoriesData = [];
       for (let category of categories) {
         const items = await queryAsync(
@@ -243,7 +235,7 @@ const getServices = async (req, res) => {
           [category.categoryId]
         );
 
-        // 4️⃣ For each item, get features
+
         const itemsData = [];
         for (let item of items) {
           const features = await queryAsync(
@@ -300,20 +292,63 @@ const getServices = async (req, res) => {
   }
 };
 
-const updateService = async () => {
-    try {
+// when customer is booking-service by phone call
+const createBooking = async (req, res) => {
+  try {
+    const { userId, customerName, customerPhone, serviceCategoryId, serviceItemId, preferredDate, preferredTimeSlot, bookingType, address } = req.body;
 
-    } catch (error) {
-
+    const errors = validateBookingInfo(req.body);
+    if (errors.length > 0) {
+      const error = new ErrorHandler(400, "Invalid booking data", errors);
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
     }
-}
 
-const removeService = async () => {
-    try {
+    let expiresAt = bookingType === "online"
+      ? new Date(Date.now() + 30 * 60 * 1000)
+      : null;
 
-    } catch (error) {
+    const bookingResult = await queryAsync(
+      `INSERT INTO bookings 
+      (userId, customerName, customerPhone, serviceCategoryId,
+       serviceItemId, preferredDate, preferredTimeSlot, bookingType, expiresAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId || null, customerName, customerPhone, serviceCategoryId, serviceItemId, preferredDate, preferredTimeSlot, bookingType, expiresAt]
+    );
 
-    }
-}
+    const bookingId = bookingResult.insertId;
 
-module.exports = { addServices,addServiceCategories,addServiceItem ,addServiceItemFeaturese,getServices,updateService, removeService }
+    const { houseNo, street, landmark, area, city, state, pincode, fullAddress } = address;
+
+    await queryAsync(
+      `INSERT INTO booking_addresses 
+      (bookingId, userId, houseNo, street, landmark, area, city, state, pincode, fullAddress)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [bookingId, userId || null, houseNo, street, landmark || null, area, city, state, pincode || null, fullAddress || null]
+    );
+
+
+    const success = new SuccessHandler(201, "Booking successfully", { bookingId });
+    return res.status(success.status).json({
+      success: true,
+      message: success.message,
+      data: success.data,
+    });
+
+
+  } catch (err) {
+    const error = new ErrorHandler(500, err.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error.errors
+    });
+  }
+};
+
+
+
+module.exports = { addServices, addServiceCategories, addServiceItem, addServiceItemFeaturese, getServices,createBooking}
